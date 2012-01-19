@@ -11,8 +11,9 @@
 var should = require('should'),
     sinon = require('sinon'),
     vows = require('vows'),
-    ec2 = require('../lib/ec2-each.js');
-
+    ec2 = require('../lib/ec2-each.js'),
+    awssum = require('awssum');
+    
 var EC2 = ec2.EC2;
 
 vows.describe('ec2-each')
@@ -66,23 +67,28 @@ vows.describe('ec2-each')
     }
   },
 })
-/*
 .addBatch({
-  'An EC2' : {
-    topic: new EC2(),
-      'with invalid configuration' : {
-        topic: function(ec2) {
-          // set up condition
-          return ec2;
+  'With a stubbed awssum' : {
+    topic: function() {      
+      var stubEc2Service = sinon.stub();
+      stubEc2Service.DescribeInstances = function(callback) { return callback('ERR'); };
+      sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
+      return null;
+    },
+    'and an EC2': {
+      topic: function() { return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); },
+      'when calling all and DescribeInstances fails': {
+        topic: function(ec2) {        
+          ec2.all(null, this.callback);        
         },
-        'when calling all': {
-          topic: function(ec2) {
-            ec2.all(this.callback);
-          },
-          'should error' : function(err, result) {
-            should.exist(err);
-          }
+        'should error': function(err, result) {
+          should.exist(err);
+          err.should.equal('ERR');
         }
       }
+    },
+    teardown: function(err, result){
+      awssum.load.restore();
+    }
   }
-})*/.export(module);
+}).export(module);
