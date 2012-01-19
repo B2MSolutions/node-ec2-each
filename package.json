@@ -22,9 +22,10 @@
     "validator": "0.3.x"
   },
   "devDependencies" : {
-		"vows" : "0.6.x",
-		"should" : "0.5.x",
-		"sinon" : "1.2.x"
+  	"jshint" : "0.5.x",
+  	"should" : "0.5.x",
+		"sinon" : "1.2.x",
+		"vows" : "0.6.x"
 	},
   "main": "./lib/ec2-each",
   "scripts": { "test": "vows test/*-test.js --spec" },
