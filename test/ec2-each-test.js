@@ -212,4 +212,47 @@ vows.describe('ec2-each')
     }
   }
 })
+.addBatch({
+  'When DescribeInstances returns one item' : {
+    topic: function() {      
+      var stubEc2Service = sinon.stub();
+      var items = {
+        Body: {
+          DescribeInstancesResponse :{
+            reservationSet: {
+              item:  { reservationId: "r-xxxxxxxx" }
+            }
+          }
+        }
+      }; 
+      
+      stubEc2Service.DescribeInstances = function(callback) { return callback(null, items); };
+      sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
+      return null;
+    },
+    'and a valid EC2': {
+      topic: function() { return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); },
+      'when calling all with a null action': {
+        topic: function(ec2) {        
+          ec2.all(null, this.callback);        
+        },
+        'should not error': function(err, result) {
+          should.not.exist(err);
+        },
+        'should return something': function(err, result) {
+          should.exist(result);
+        },
+        'should return one item': function(err, result) {
+          result.should.have.length(1);
+        },
+        'should return reservationId "r-xxxxxxxx"': function(err, result) {
+          result.should.includeEql({ item: { reservationId: "r-xxxxxxxx" }});
+        },
+      }
+    },
+    teardown: function(err, result){
+      awssum.load.restore();    
+    }
+  }
+})
 .export(module);
