@@ -134,7 +134,78 @@ vows.describe('ec2-each')
         'should return reservationId "r-yyyyyyyy"': function(err, result) {
           result.should.includeEql({ item: { reservationId: "r-yyyyyyyy" }});
         },
-      }
+      },
+      'when calling all with an action that does not error': {
+        topic: function(ec2) { 
+          var action = sinon.stub();
+          action.withArgs({ reservationId: "r-xxxxxxxx" }).yields(null, 'xxxxxxxx');
+          action.withArgs({ reservationId: "r-yyyyyyyy" }).yields(null, 'yyyyyyyy');
+          ec2.all(action, this.callback);        
+        },
+        'should not error': function(err, result) {
+          should.not.exist(err);
+        },
+        'should return something': function(err, result) {
+          should.exist(result);
+        },
+        'should return two items': function(err, result) {
+          result.should.have.length(2);
+        },
+        'should return reservationId "r-xxxxxxxx" and xxxxxxxx': function(err, result) {
+          result.should.includeEql({ item: { reservationId: "r-xxxxxxxx"} , error: null, data: 'xxxxxxxx'});
+        },
+        'should return reservationId "r-yyyyyyyy" and yyyyyyyy': function(err, result) {
+          result.should.includeEql({ item: { reservationId: "r-yyyyyyyy"}, error: null, data: 'yyyyyyyy' });
+        },        
+      },
+      'when calling all with an action that fails on the first call': {
+        topic: function(ec2) { 
+          var action = sinon.stub();
+          action.withArgs({ reservationId: "r-xxxxxxxx" }).yields('xxxxxxxx failed', 'xxxxxxxx');
+          action.withArgs({ reservationId: "r-yyyyyyyy" }).yields(null, 'yyyyyyyy');
+          ec2.all(action, this.callback);        
+        },
+        'should error': function(err, result) {
+          should.exist(err);
+          err.should.eql('xxxxxxxx failed');
+        },
+        'should return something': function(err, result) {
+          should.exist(result);
+        },
+        'should return two items': function(err, result) {
+          result.should.have.length(2);
+        },
+        'should return reservationId "r-xxxxxxxx" and xxxxxxxx and correct error': function(err, result) {
+          result.should.includeEql({ item: { reservationId: "r-xxxxxxxx"} , error: 'xxxxxxxx failed', data: 'xxxxxxxx'});
+        },
+        'should return reservationId "r-yyyyyyyy" and yyyyyyyy': function(err, result) {
+          result.should.includeEql({ item: { reservationId: "r-yyyyyyyy"}, error: null, data: 'yyyyyyyy' });
+        },        
+      },
+      'when calling all with an action that fails on the second call': {
+        topic: function(ec2) { 
+          var action = sinon.stub();
+          action.withArgs({ reservationId: "r-xxxxxxxx" }).yields(null, 'xxxxxxxx');
+          action.withArgs({ reservationId: "r-yyyyyyyy" }).yields('yyyyyyyy failed', 'yyyyyyyy');
+          ec2.all(action, this.callback);        
+        },
+        'should error': function(err, result) {
+          should.exist(err);
+          err.should.eql('yyyyyyyy failed');
+        },
+        'should return something': function(err, result) {
+          should.exist(result);
+        },
+        'should return two items': function(err, result) {
+          result.should.have.length(2);
+        },
+        'should return reservationId "r-xxxxxxxx" and xxxxxxxx': function(err, result) {
+          result.should.includeEql({ item: { reservationId: "r-xxxxxxxx"} , error: null, data: 'xxxxxxxx'});
+        },
+        'should return reservationId "r-yyyyyyyy" and yyyyyyyy and correct error': function(err, result) {
+          result.should.includeEql({ item: { reservationId: "r-yyyyyyyy"}, error: 'yyyyyyyy failed', data: 'yyyyyyyy' });
+        },        
+      },
     },
     teardown: function(err, result){
       awssum.load.restore();    
@@ -142,21 +213,3 @@ vows.describe('ec2-each')
   }
 })
 .export(module);
-
-/*
-{ item: 
-   { reservationId: 'r-30619379',
-     ownerId: '699356134023',
-     groupSet: { item: [Object] },
-     instancesSet: { item: [Object] } } }
-     
-{ item: 
-   [ { reservationId: 'r-30619379',
-       ownerId: '699356134023',
-       groupSet: [Object],
-       instancesSet: [Object] },
-     { reservationId: 'r-92c33fdb',
-       ownerId: '699356134023',
-       groupSet: [Object],
-       instancesSet: [Object] } ] }     
-*/
