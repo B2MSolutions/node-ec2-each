@@ -256,6 +256,45 @@ vows.describe('ec2-each')
   }
 })
 .addBatch({
+  'When DescribeInstances returns undefined item' : {
+    topic: function() {      
+      var stubEc2Service = sinon.stub();
+      var items = {
+        Body: {
+          DescribeInstancesResponse :{
+            reservationSet: {
+            }
+          }
+        }
+      }; 
+      
+      stubEc2Service.DescribeInstances = function(filter, callback) { return callback(null, items); };
+      sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
+      return null;
+    },
+    'and a valid EC2': {
+      topic: function() { return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); },
+      'when calling each with a null action': {
+        topic: function(ec2) {        
+          ec2.each(null, null, this.callback);        
+        },
+        'should not error': function(err, result) {
+          should.not.exist(err);
+        },
+        'should return something': function(err, result) {
+          should.exist(result);
+        },
+        'should return zero items': function(err, result) {
+          result.should.have.length(0);
+        },
+      }
+    },
+    teardown: function(err, result){
+      awssum.load.restore();    
+    }
+  }
+})
+.addBatch({
   'With valid configuration' : {
     topic: function() { 
       sinon.stub(awssum, 'load').returns(function() { return sinon.stub();});
