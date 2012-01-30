@@ -77,7 +77,7 @@ vows.describe('ec2-each')
     },
     'and a valid EC2': {
       topic: function() { return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); },
-      'when calling running with no options': {
+      'when calling running': {
         topic: function(ec2) {        
           ec2.running(this.callback);        
         },
@@ -86,9 +86,9 @@ vows.describe('ec2-each')
           err.should.equal('ERR');
         }
       },
-      'when calling all with no options': {
+      'when calling all with no filters': {
         topic: function(ec2) {        
-          ec2.all(this.callback);        
+          ec2.all(null, this.callback);        
         },
         'should error': function(err, result) {
           should.exist(err);
@@ -325,9 +325,9 @@ vows.describe('ec2-each')
       sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});              
       return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); 
     },
-    'when calling all with no options': {
+    'when calling all with no filters': {
       topic: function(ec2) {       
-        ec2.all(this.callback);        
+        ec2.all(null, this.callback);        
       },
       'should not error': function(err, stub) {
         should.not.exist(err);
@@ -336,7 +336,19 @@ vows.describe('ec2-each')
         should.not.exist(filter); 
       }
     },
-     'when calling running with no options': {
+    'when calling all with filters': {
+      topic: function(ec2) {       
+        ec2.all('some filters', this.callback);        
+      },
+      'should not error': function(err, stub) {
+        should.not.exist(err);
+      },
+      'should call DescribeInstances with supplied filters': function(err, filter){
+        should.exist(filter); 
+        filter.should.eql('some filters');
+      }
+    },
+    'when calling running': {
       topic: function(ec2) {       
         ec2.running(this.callback);        
       },
@@ -347,8 +359,8 @@ vows.describe('ec2-each')
         should.exist(filter); 
         var expected = { FilterName  : [ 'instance-state-name'], FilterValue : [ [ 'running' ]] };
         filter.should.eql(expected);
-      }
-    },
+      },
+    }
   },
   teardown: function(err, result){
     awssum.load.restore();    

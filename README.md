@@ -21,15 +21,16 @@ _ec2-each_ is a [node](http://nodejs.org) package for iterating EC2 instances an
       };
       
       var ec2 = new each.EC2(config);
-      ec2.all(function(err, instances) {
+      ec2.running(function(err, instances) {
         ec2.each(instances, logReservationId, callback);
       });
       
     };
     
-## all(callback)
+## all(filters, callback)
 
-Returns a set of all EC2 instances (irrespective of status) that can be passed into _each_.
+Returns a set of all EC2 instances (irrespective of status) that can be passed into _each_. 
+The supplied [awssum](https://github.com/appsattic/node-awssum) filters will be applied.
 
 ## running(action, callback)
 

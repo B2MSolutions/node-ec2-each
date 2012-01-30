@@ -26,7 +26,7 @@ var logReservationId = function(item, callback) {
 };
 
 var ec2 = new each.EC2(config);
-ec2.all(function(err, instances) {
+ec2.all(null, function(err, instances) {
   if(err) {
     console.log(err);
     process.exit(1);
