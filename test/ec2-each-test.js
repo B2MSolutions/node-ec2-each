@@ -77,15 +77,24 @@ vows.describe('ec2-each')
     },
     'and a valid EC2': {
       topic: function() { return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); },
-      'when calling each': {
+      'when calling running with no options': {
         topic: function(ec2) {        
-          ec2.each(null, null, this.callback);        
+          ec2.running(this.callback);        
         },
         'should error': function(err, result) {
           should.exist(err);
           err.should.equal('ERR');
         }
-      }
+      },
+      'when calling all with no options': {
+        topic: function(ec2) {        
+          ec2.all(this.callback);        
+        },
+        'should error': function(err, result) {
+          should.exist(err);
+          err.should.equal('ERR');
+        }
+      },
     },
     teardown: function(err, result){
       awssum.load.restore();
@@ -93,10 +102,10 @@ vows.describe('ec2-each')
   }
 })
 .addBatch({
-  'When DescribeInstances returns two items' : {
+  'Given two instances' : {
     topic: function() {      
-      var stubEc2Service = sinon.stub();
-      var items = {
+      
+      var instances = {
         Body: {
           DescribeInstancesResponse :{
             reservationSet: {
@@ -108,16 +117,21 @@ vows.describe('ec2-each')
           }
         }
       };
-      
-      stubEc2Service.DescribeInstances = function(filter, callback) { return callback(null, items); };
+
+      var stubEc2Service = sinon.stub();
       sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
-      return null;
+      return instances;
     },
     'and a valid EC2': {
-      topic: function() { return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); },
+      topic: function(instances) { 
+        return { 
+          ec2: new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}),
+          instances: instances
+        };
+      },
       'when calling each with a null action': {
-        topic: function(ec2) {        
-          ec2.each(null, null, this.callback);        
+        topic: function(data) {        
+          data.ec2.each(data.instances, null, this.callback);        
         },
         'should not error': function(err, result) {
           should.not.exist(err);
@@ -136,11 +150,11 @@ vows.describe('ec2-each')
         },
       },
       'when calling each with an action that does not error': {
-        topic: function(ec2) { 
+        topic: function(data) { 
           var action = sinon.stub();
           action.withArgs({ reservationId: "r-xxxxxxxx" }).yields(null, 'xxxxxxxx');
           action.withArgs({ reservationId: "r-yyyyyyyy" }).yields(null, 'yyyyyyyy');
-          ec2.each(action, null, this.callback);        
+          data.ec2.each(data.instances, action, this.callback);        
         },
         'should not error': function(err, result) {
           should.not.exist(err);
@@ -159,11 +173,11 @@ vows.describe('ec2-each')
         },        
       },
       'when calling each with an action that fails on the first call': {
-        topic: function(ec2) { 
+        topic: function(data) { 
           var action = sinon.stub();
           action.withArgs({ reservationId: "r-xxxxxxxx" }).yields('xxxxxxxx failed', 'xxxxxxxx');
           action.withArgs({ reservationId: "r-yyyyyyyy" }).yields(null, 'yyyyyyyy');
-          ec2.each(action, null, this.callback);        
+          data.ec2.each(data.instances, action, this.callback);        
         },
         'should error': function(err, result) {
           should.exist(err);
@@ -183,11 +197,11 @@ vows.describe('ec2-each')
         },        
       },
       'when calling each with an action that fails on the second call': {
-        topic: function(ec2) { 
+        topic: function(data) { 
           var action = sinon.stub();
           action.withArgs({ reservationId: "r-xxxxxxxx" }).yields(null, 'xxxxxxxx');
           action.withArgs({ reservationId: "r-yyyyyyyy" }).yields('yyyyyyyy failed', 'yyyyyyyy');
-          ec2.each(action, null, this.callback);        
+          data.ec2.each(data.instances, action, this.callback);        
         },
         'should error': function(err, result) {
           should.exist(err);
@@ -215,8 +229,8 @@ vows.describe('ec2-each')
 .addBatch({
   'When DescribeInstances returns one item' : {
     topic: function() {      
-      var stubEc2Service = sinon.stub();
-      var items = {
+
+      var instances = {
         Body: {
           DescribeInstancesResponse :{
             reservationSet: {
@@ -225,16 +239,21 @@ vows.describe('ec2-each')
           }
         }
       }; 
-      
-      stubEc2Service.DescribeInstances = function(filter, callback) { return callback(null, items); };
+
+      var stubEc2Service = sinon.stub();
       sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
-      return null;
+      return instances;
     },
     'and a valid EC2': {
-      topic: function() { return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); },
+      topic: function(instances) { 
+        return { 
+          ec2: new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}),
+          instances: instances
+        }; 
+      },
       'when calling each with a null action': {
-        topic: function(ec2) {        
-          ec2.each(null, null, this.callback);        
+        topic: function(data) {        
+          data.ec2.each(data.instances, null, this.callback);        
         },
         'should not error': function(err, result) {
           should.not.exist(err);
@@ -258,8 +277,7 @@ vows.describe('ec2-each')
 .addBatch({
   'When DescribeInstances returns undefined item' : {
     topic: function() {      
-      var stubEc2Service = sinon.stub();
-      var items = {
+      var instances = {
         Body: {
           DescribeInstancesResponse :{
             reservationSet: {
@@ -268,15 +286,20 @@ vows.describe('ec2-each')
         }
       }; 
       
-      stubEc2Service.DescribeInstances = function(filter, callback) { return callback(null, items); };
+      var stubEc2Service = sinon.stub();
       sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
-      return null;
+      return instances;
     },
     'and a valid EC2': {
-      topic: function() { return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); },
+       topic: function(instances) { 
+        return { 
+          ec2: new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}),
+          instances: instances
+        }; 
+      },
       'when calling each with a null action': {
-        topic: function(ec2) {        
-          ec2.each(null, null, this.callback);        
+        topic: function(data) {        
+          data.ec2.each(data.instances, null, this.callback);        
         },
         'should not error': function(err, result) {
           should.not.exist(err);
@@ -295,47 +318,40 @@ vows.describe('ec2-each')
   }
 })
 .addBatch({
-  'With valid configuration' : {
+  'with a valid EC2': {
     topic: function() { 
-      sinon.stub(awssum, 'load').returns(function() { return sinon.stub();});
-      return null;
+      var stubEc2Service = sinon.stub();
+      stubEc2Service.DescribeInstances = function(filter, callback) { return callback(null, filter); };        
+      sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});              
+      return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); 
     },
-    'and a valid EC2': {
-      topic: function() { 
-        var ec2 = new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}); 
-        var stub = sinon.stub(ec2, 'each');
-        stub.yields(null, stub);
-        return ec2;
+    'when calling all with no options': {
+      topic: function(ec2) {       
+        ec2.all(this.callback);        
       },
-      'when calling all': {
-        topic: function(ec2) {       
-          ec2.all('action', this.callback);        
-        },
-        'should not error': function(err, stub) {
-          should.not.exist(err);
-        },
-        'should call each with null filter': function(err, stub){
-          should.exist(stub); 
-          stub.calledWith('action', null).should.be.true;
-        }
+      'should not error': function(err, stub) {
+        should.not.exist(err);
       },
-      'when calling running': {
-        topic: function(ec2) {       
-          ec2.running('action', this.callback);        
-        },
-        'should not error': function(err, stub) {
-          should.not.exist(err);
-        },
-        'should call each with state filter': function(err, stub){
-          should.exist(stub); 
-          var filter = { FilterName  : [ 'instance-state-name'], FilterValue : [ [ 'running' ]] };
-          stub.calledWith('action', filter).should.be.true;
-        }
+      'should call DescribeInstances with null filter': function(err, filter){
+        should.not.exist(filter); 
       }
     },
-    teardown: function(err, result){
-      awssum.load.restore();    
-    }
+     'when calling running with no options': {
+      topic: function(ec2) {       
+        ec2.running(this.callback);        
+      },
+      'should not error': function(err, stub) {
+        should.not.exist(err);
+      },
+      'should call DescribeInstances with expected filter': function(err, filter){
+        should.exist(filter); 
+        var expected = { FilterName  : [ 'instance-state-name'], FilterValue : [ [ 'running' ]] };
+        filter.should.eql(expected);
+      }
+    },
+  },
+  teardown: function(err, result){
+    awssum.load.restore();    
   }
 })
 .export(module);

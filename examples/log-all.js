@@ -26,11 +26,18 @@ var logReservationId = function(item, callback) {
 };
 
 var ec2 = new each.EC2(config);
-ec2.all(logReservationId, function(err) {
+ec2.all(function(err, instances) {
   if(err) {
     console.log(err);
     process.exit(1);
   }
- 
-  process.exit(0);
+  
+  ec2.each(instances, logReservationId, function(err) {
+    if(err) {
+      console.log(err);
+      process.exit(1);
+    }
+    
+    process.exit(0);
+  });
 });
