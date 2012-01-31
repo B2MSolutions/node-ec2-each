@@ -15,14 +15,14 @@ _ec2-each_ is a [node](http://nodejs.org) package for iterating EC2 instances an
         region: "eu-west-1"
       };
             
-      var logReservationId = function(item, callback) {
+      var logReservationId = function(item, state, callback) {
         console.log(item.reservationId);
         callback(null);
       };
       
       var ec2 = new each.EC2(config);
       ec2.running(function(err, instances) {
-        ec2.each(instances, logReservationId, callback);
+        ec2.each(instances, logReservationId, null, callback);
       });
       
     };
@@ -36,12 +36,14 @@ The supplied [awssum](https://github.com/appsattic/node-awssum) filters will be 
 
 Returns a set of all running EC2 instances that can be passed into _each_.
 
-## each(instances, action, callback)
+## each(instances, action, state, callback)
 
 Calls the action function once per EC2 instance passed in.
 The instances must be in the format as returned by _all_, _running_ or an [awssum](https://github.com/appsattic/node-awssum) DescribeInstances call.
 
 The action could, for example, make an ssh call to the EC2 instance.
+
+The state is passed to every action.
 
 The callback is passed an error if any of the actions fail and the callback data contains an array of action results.
 

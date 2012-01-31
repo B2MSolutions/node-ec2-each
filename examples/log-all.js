@@ -20,8 +20,8 @@ var config = {
   region: process.argv[5]
 };
       
-var logReservationId = function(item, callback) {
-  console.log(item.reservationId);
+var logReservationId = function(item, state, callback) {
+  console.log(item.reservationId + ': ' + state);
   callback(null);
 };
 
@@ -32,7 +32,9 @@ ec2.all(null, function(err, instances) {
     process.exit(1);
   }
   
-  ec2.each(instances, logReservationId, function(err) {
+  var someStateToPassToAllActions = 'sharedState';
+  
+  ec2.each(instances, logReservationId, someStateToPassToAllActions, function(err) {
     if(err) {
       console.log(err);
       process.exit(1);

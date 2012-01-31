@@ -131,7 +131,7 @@ vows.describe('ec2-each')
       },
       'when calling each with a null action': {
         topic: function(data) {        
-          data.ec2.each(data.instances, null, this.callback);        
+          data.ec2.each(data.instances, null, null, this.callback);        
         },
         'should not error': function(err, result) {
           should.not.exist(err);
@@ -152,9 +152,9 @@ vows.describe('ec2-each')
       'when calling each with an action that does not error': {
         topic: function(data) { 
           var action = sinon.stub();
-          action.withArgs({ reservationId: "r-xxxxxxxx" }).yields(null, 'xxxxxxxx');
-          action.withArgs({ reservationId: "r-yyyyyyyy" }).yields(null, 'yyyyyyyy');
-          data.ec2.each(data.instances, action, this.callback);        
+          action.withArgs({ reservationId: "r-xxxxxxxx" }, 'somestate').yields(null, 'xxxxxxxx');
+          action.withArgs({ reservationId: "r-yyyyyyyy" }, 'somestate').yields(null, 'yyyyyyyy');
+          data.ec2.each(data.instances, action, 'somestate', this.callback);        
         },
         'should not error': function(err, result) {
           should.not.exist(err);
@@ -177,7 +177,7 @@ vows.describe('ec2-each')
           var action = sinon.stub();
           action.withArgs({ reservationId: "r-xxxxxxxx" }).yields('xxxxxxxx failed', 'xxxxxxxx');
           action.withArgs({ reservationId: "r-yyyyyyyy" }).yields(null, 'yyyyyyyy');
-          data.ec2.each(data.instances, action, this.callback);        
+          data.ec2.each(data.instances, action, null, this.callback);        
         },
         'should error': function(err, result) {
           should.exist(err);
@@ -201,7 +201,7 @@ vows.describe('ec2-each')
           var action = sinon.stub();
           action.withArgs({ reservationId: "r-xxxxxxxx" }).yields(null, 'xxxxxxxx');
           action.withArgs({ reservationId: "r-yyyyyyyy" }).yields('yyyyyyyy failed', 'yyyyyyyy');
-          data.ec2.each(data.instances, action, this.callback);        
+          data.ec2.each(data.instances, action, null, this.callback);        
         },
         'should error': function(err, result) {
           should.exist(err);
@@ -253,7 +253,7 @@ vows.describe('ec2-each')
       },
       'when calling each with a null action': {
         topic: function(data) {        
-          data.ec2.each(data.instances, null, this.callback);        
+          data.ec2.each(data.instances, null, null, this.callback);        
         },
         'should not error': function(err, result) {
           should.not.exist(err);
@@ -299,7 +299,7 @@ vows.describe('ec2-each')
       },
       'when calling each with a null action': {
         topic: function(data) {        
-          data.ec2.each(data.instances, null, this.callback);        
+          data.ec2.each(data.instances, null, null, this.callback);        
         },
         'should not error': function(err, result) {
           should.not.exist(err);
