@@ -1,6 +1,8 @@
 # ec2-each
 _ec2-each_ is a [node](http://nodejs.org) package for iterating EC2 instances and doing things.
 
+[![Build Status](https://secure.travis-ci.org/B2MSolutions/node-ec2-each.png)](http://travis-ci.org/b2msolutions/node-ec2-each)
+
 ## Installation
     $ npm install ec2-each
   
