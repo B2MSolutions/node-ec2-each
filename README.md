@@ -50,3 +50,6 @@ The state is passed to every action.
 The callback is passed an error if any of the actions fail and the callback data contains an array of action results.
 
 All actions are called in parallel.
+
+## Contributors
+Pair programmed by [Roy Lines](http://roylines.co.uk) and [James Bloomer](https://github.com/jamesbloomer).
