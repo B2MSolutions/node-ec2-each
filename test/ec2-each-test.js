@@ -17,6 +17,18 @@ var should = require('should'),
 var EC2 = ec2each.EC2;
 
 vows.describe('ec2-each')
+ .addBatch({
+  'with non-null configuration': {
+    'should return accessKey error': function() {
+      try {
+        new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"});
+        throw 'shouldnt get here';
+      } catch(e) {
+        e.should.eql('amazon: accessKeyID is required');
+      }
+    }
+  }
+})
 .addBatch({
   'when configuration is undefined' : {
     topic: undefined,
@@ -72,7 +84,7 @@ vows.describe('ec2-each')
     topic: function() {
       var stubEc2Service = sinon.stub();
       stubEc2Service.DescribeInstances = function(filter, callback) { return callback('ERR'); };
-      sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
+      sinon.stub(awssum, 'load').returns({ Ec2: function() { return stubEc2Service;} });
       return null;
     },
     'and a valid EC2': {
@@ -119,7 +131,7 @@ vows.describe('ec2-each')
       };
 
       var stubEc2Service = sinon.stub();
-      sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
+      sinon.stub(awssum, 'load').returns({ Ec2: function() { return stubEc2Service;} });
       return instances;
     },
     'and a valid EC2': {
@@ -241,7 +253,7 @@ vows.describe('ec2-each')
       };
 
       var stubEc2Service = sinon.stub();
-      sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
+      sinon.stub(awssum, 'load').returns({ Ec2: function() { return stubEc2Service;} });
       return instances;
     },
     'and a valid EC2': {
@@ -287,7 +299,7 @@ vows.describe('ec2-each')
       };
 
       var stubEc2Service = sinon.stub();
-      sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
+      sinon.stub(awssum, 'load').returns({ Ec2: function() { return stubEc2Service;} });
       return instances;
     },
     'and a valid EC2': {
@@ -322,7 +334,7 @@ vows.describe('ec2-each')
     topic: function() {
       var stubEc2Service = sinon.stub();
       stubEc2Service.DescribeInstances = function(filter, callback) { return callback(null, filter); };
-      sinon.stub(awssum, 'load').returns(function() { return stubEc2Service;});
+      sinon.stub(awssum, 'load').returns({ Ec2: function() { return stubEc2Service;} });
       return new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"});
     },
     'when calling all with no filters': {
