@@ -24,7 +24,7 @@ vows.describe('ec2-each')
         new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"});
         throw 'shouldnt get here';
       } catch(e) {
-        e.should.eql('amazon: accessKeyID is required');
+        e.should.eql('ec2: invalid region \'rr\'');
       }
     }
   }
@@ -345,7 +345,8 @@ vows.describe('ec2-each')
         should.not.exist(err);
       },
       'should call DescribeInstances with null filter': function(err, filter){
-        should.not.exist(filter);
+        should.exist(filter);
+        should.not.exist(filter.Filter);
       }
     },
     'when calling all with filters': {
@@ -357,7 +358,7 @@ vows.describe('ec2-each')
       },
       'should call DescribeInstances with supplied filters': function(err, filter){
         should.exist(filter);
-        filter.should.eql('some filters');
+        filter.Filter.should.eql('some filters');
       }
     },
     'when calling running': {
@@ -369,7 +370,7 @@ vows.describe('ec2-each')
       },
       'should call DescribeInstances with expected filter': function(err, filter){
         should.exist(filter);
-        var expected = { FilterName  : [ 'instance-state-name'], FilterValue : [ [ 'running' ]] };
+        var expected = { Filter: [{ Name  : 'instance-state-name', Value : [ 'running' ] }] };
         filter.should.eql(expected);
       },
     }
