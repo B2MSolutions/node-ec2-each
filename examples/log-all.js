@@ -21,7 +21,7 @@ var config = {
 };
 
 var logReservationId = function(item, state, callback) {
-  console.log(item.reservationId + ': (' + item.instancesSet.item.dnsName + ') ' + state);
+  console.log(item.reservationId + ': (' + item.instancesSet[0].item[0].dnsName[0] + ') ' + state);
   callback(null);
 };
 
@@ -29,9 +29,6 @@ var ec2 = new each.EC2(config);
 var filter = [{
       Name  : 'instance-state-name',
       Value : ['running']
-    }, {
-      Name : 'tag:environment',
-      Value : ['production']
     }];
 
 ec2.all(filter, function(err, instances) {
