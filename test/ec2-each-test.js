@@ -141,6 +141,14 @@ vows.describe('ec2-each')
           instances: instances
         };
       },
+      'when calling any' : {
+        topic : function(data) {
+          return data.ec2.any(data.instances);
+        },
+        'should return true': function(result) {
+          result.should.equal(true);
+        }
+      },
       'when calling each with a null action': {
         topic: function(data) {
           data.ec2.each(data.instances, null, null, this.callback);
@@ -263,6 +271,14 @@ vows.describe('ec2-each')
           instances: instances
         };
       },
+      'when calling any' : {
+        topic : function(data) {
+          return data.ec2.any(data.instances);
+        },
+        'should return true': function(result) {
+          result.should.equal(true);
+        }
+      },
       'when calling each with a null action': {
         topic: function(data) {
           data.ec2.each(data.instances, null, null, this.callback);
@@ -308,6 +324,14 @@ vows.describe('ec2-each')
           ec2: new EC2({ accessKeyId: "x", secretAccessKey: "s", awsAccountId: "1", region: "rr"}),
           instances: instances
         };
+      },
+      'when calling any' : {
+        topic : function(data) {
+          return data.ec2.any(data.instances);
+        },
+        'should return false': function(result) {
+          result.should.equal(false);
+        }
       },
       'when calling each with a null action': {
         topic: function(data) {

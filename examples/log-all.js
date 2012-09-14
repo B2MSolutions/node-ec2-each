@@ -21,15 +21,18 @@ var config = {
 };
 
 var logReservationId = function(item, state, callback) {
-  console.log(item.reservationId + ': ' + state);
+  console.log(item.reservationId + ': (' + item.instancesSet.item.dnsName + ') ' + state);
   callback(null);
 };
 
 var ec2 = new each.EC2(config);
 var filter = [{
-    Name  : 'instance-state-name',
-    Value : ['running']
-  }];
+      Name  : 'instance-state-name',
+      Value : ['running']
+    }, {
+      Name : 'tag:environment',
+      Value : ['production']
+    }];
 
 ec2.all(filter, function(err, instances) {
   if(err) {
@@ -37,6 +40,7 @@ ec2.all(filter, function(err, instances) {
     process.exit(1);
   }
 
+  console.log(ec2.any(instances));
   var someStateToPassToAllActions = 'sharedState';
 
   ec2.each(instances, logReservationId, someStateToPassToAllActions, function(err) {
