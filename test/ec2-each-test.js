@@ -120,12 +120,12 @@ vows.describe('ec2-each')
       var instances = {
         Body: {
           DescribeInstancesResponse :{
-            reservationSet: {
+            reservationSet: [{
               item: [
                 { reservationId: "r-xxxxxxxx" },
                 { reservationId: "r-yyyyyyyy" }
               ]
-            }
+            }]
           }
         }
       };
@@ -253,9 +253,9 @@ vows.describe('ec2-each')
       var instances = {
         Body: {
           DescribeInstancesResponse :{
-            reservationSet: {
-              item:  { reservationId: "r-xxxxxxxx" }
-            }
+            reservationSet: [{
+              item:  [{ reservationId: "r-xxxxxxxx" }]
+            }]
           }
         }
       };
@@ -308,8 +308,8 @@ vows.describe('ec2-each')
       var instances = {
         Body: {
           DescribeInstancesResponse :{
-            reservationSet: {
-            }
+            reservationSet: [{
+            }]
           }
         }
       };
