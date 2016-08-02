@@ -17,17 +17,17 @@
   },
   "keywords": ["cloud computing", "ec2", "aws", "amazon"],
 	"dependencies": {
-    "async": "0.1.22",
-    "awssum": "0.10.0",
-    "pkginfo": "0.2.3",
-    "validator": "0.4.11"
+    "async": "2.0.1",
+    "awssum": "1.2.0",
+    "pkginfo": "0.4.0",
+    "validator": "5.5.0"
   },
   "devDependencies" : {
-    "jscheckstyle" : "0.0.7",
-  	"jshint" : "0.9.0",
-  	"should" : "1.1.0",
-		"sinon" : "1.4.2",
-		"vows" : "0.6.4"
+    "jscheckstyle": "0.0.9",
+  	"jshint": "2.9.2",
+  	"should": "10.0.0",
+		"sinon": "1.17.5",
+		"vows": "0.8.1"
 	},
   "main": "./lib/ec2-each",
   "scripts": { "test": "vows test/*-test.js --spec" },
